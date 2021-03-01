@@ -1,5 +1,19 @@
 from home_budget_app import db
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
+
+
+def add_new(_class, **kwargs):
+    new = _class(**kwargs)
+    try:
+        db.session.add(new)
+        db.session.commit()
+        return True
+    except IntegrityError as err:
+        print(f'żle!!!{err}')
+        db.session.rollback()
+        return False
+
 
 user_budget = db.Table('user_budget',
                        db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
@@ -39,11 +53,11 @@ class User(db.Model):
 
 class Income(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
+    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'))
     name = db.Column(db.String(100), index=True, nullable=False)
     amount = db.Column(db.Float, nullable=False)
-    posting_date = db.Column(db.String(10), nullable=False)
     steady_income = db.Column(db.Boolean, nullable=False, default=False)
+    posting_date = db.Column(db.String(10))
     deposits = db.relationship('Deposit', secondary=locations, backref='incomes', lazy='subquery')
 
     def __repr__(self):
@@ -65,9 +79,9 @@ class Budget(db.Model):
 
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    deposit_id = db.Column(db.Integer, db.ForeignKey('deposit.id'), nullable=False)
+    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    deposit_id = db.Column(db.Integer, db.ForeignKey('deposit.id'))
     name = db.Column(db.String(100), index=True, nullable=False)
     date_of_payment = db.Column(db.String(10), nullable=False)
     amount = db.Column(db.Float, nullable=False)
@@ -90,7 +104,7 @@ class Category(db.Model):
 class Deposit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), index=True, nullable=False)
-    amount = db.Column(db.Float, nullable=False)
+    amount = db.Column(db.Float)
     expenses = db.relationship('Expense', backref='deposit', lazy=True)
     savings = db.relationship('Saving', backref='deposit', lazy=True)
     debts = db.relationship('Debt', backref='deposit', lazy=True)
@@ -111,8 +125,8 @@ class Payment(db.Model):
 
 class Saving(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
-    deposit_id = db.Column(db.Integer, db.ForeignKey('deposit.id'), nullable=False)
+    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'))
+    deposit_id = db.Column(db.Integer, db.ForeignKey('deposit.id'))
     name = db.Column(db.String(100), index=True, nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payments = db.relationship('Payment', secondary=saving_payment, backref='savings', lazy='subquery')
@@ -123,8 +137,8 @@ class Saving(db.Model):
 
 class Debt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
-    deposit_id = db.Column(db.Integer, db.ForeignKey('deposit.id'), nullable=False)
+    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'))
+    deposit_id = db.Column(db.Integer, db.ForeignKey('deposit.id'))
     name = db.Column(db.String(100), index=True, nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date_of_payment = db.Column(db.String(10), nullable=False)

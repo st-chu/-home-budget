@@ -10,4 +10,4 @@ class Config:
         os.environ.get('DATABASE_URL') or
         'sqlite:///' + os.path.join(BASE_DIR, 'budget.db')
     )
-    SQLALCHEMY_TRACK_MODIFICATION = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
