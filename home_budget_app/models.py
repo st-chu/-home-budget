@@ -39,11 +39,11 @@ class User(db.Model):
 
 class Income(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'), nullable=False)
+    budget_id = db.Column(db.Integer, db.ForeignKey('budget.id'))
     name = db.Column(db.String(100), index=True, nullable=False)
     amount = db.Column(db.Float, nullable=False)
-    posting_date = db.Column(db.String(10), nullable=False)
     steady_income = db.Column(db.Boolean, nullable=False, default=False)
+    posting_date = db.Column(db.String(10))
     deposits = db.relationship('Deposit', secondary=locations, backref='incomes', lazy='subquery')
 
     def __repr__(self):
